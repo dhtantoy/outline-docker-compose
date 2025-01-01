@@ -45,7 +45,7 @@ services:
       - ${NETWORKS}
 ##END
   wk-outline:
-    image: outlinewiki/outline:${OUTLINE_VERSION}
+    image: outline/outline:${OUTLINE_VERSION}
     command: sh -c "yarn db:migrate --env production-ssl-disabled && yarn start"
     environment:
       - DATABASE_URL=postgres://user:pass@wk-postgres:5432/outline

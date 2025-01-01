@@ -3,13 +3,16 @@ docker-compose := $(shell command -v docker-compose 2> /dev/null || echo "docker
 
 gen-conf:
 #	echo ${docker-compose}
-	cd ./scripts && bash ./main.sh init_cfg
+	cd ./scripts && cp config.sh.sample config.sh && bash ./main.sh init_cfg
 
 start:
 	${docker-compose} up -d
 	cd ./scripts && bash ./main.sh reload_nginx
 
 install: gen-conf start
+#	1001 is the user id of the user in the container
+	@sudo mkdir -p ./data/outline && sudo chown -R 1001 ./data/outline && sudo -k
+
 	sleep 1
 	${docker-compose} exec ${oidc_server_container} bash -c "make init"
 	${docker-compose} exec ${oidc_server_container} bash -c "python manage.py loaddata oidc-server-outline-client"
