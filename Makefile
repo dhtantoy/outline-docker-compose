@@ -1,15 +1,25 @@
 oidc_server_container=wk-oidc-server
 docker-compose := $(shell command -v docker-compose 2> /dev/null || echo "docker compose")
+OUTLINE_VERSION = local
 
 gen-conf:
-#	echo ${docker-compose}
 	cd ./scripts && cp config.sh.sample config.sh && bash ./main.sh init_cfg
+	
+build:
+	cd ./outline && make up 
+	cd ./outline && make OUTLINE_VERSION=${OUTLINE_VERSION} build
 
 start:
 	${docker-compose} up -d
 	cd ./scripts && bash ./main.sh reload_nginx
 
-install: gen-conf start
+test:
+	cd ./outline && make test
+
+watch:
+	cd ./outline && make watch
+
+install: start
 #	1001 is the user id of the user in the container
 	@sudo mkdir -p ./data/outline && sudo chown -R 1001 ./data/outline && sudo -k
 
@@ -39,5 +49,7 @@ clean-conf:
 clean-data: clean-docker
 	rm -rfv ./data/certs ./data/minio_root \
 		./data/pgdata ./data/uc ./data/outline
+	cd ./outline && make clean
 
 clean: clean-docker clean-conf
+
